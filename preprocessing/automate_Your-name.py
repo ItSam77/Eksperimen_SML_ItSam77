@@ -96,7 +96,7 @@ def preprocess_data(file_path):
 
 # --- Contoh Penggunaan ---
 if __name__ == "__main__":
-    input_csv_path = "data.csv"
+    input_csv_path = "../data.csv"
     processed_df, mappings = preprocess_data(input_csv_path)
 
     if processed_df is not None:
