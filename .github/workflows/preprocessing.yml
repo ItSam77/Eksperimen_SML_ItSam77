@@ -18,10 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4  # pakai versi terbaru
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5  # versi terbaru
       with:
         python-version: '3.9'
         
@@ -33,7 +34,7 @@ jobs:
     - name: Run preprocessing pipeline
       run: |
         cd preprocessing
-        python automate_swift.py
+        python automate_Your-name.py
         
     - name: Upload processed data
       uses: actions/upload-artifact@v4
@@ -41,6 +42,4 @@ jobs:
         name: processed-data
         path: |
           preprocessing/processed_data.csv
-          preprocessing/processed_data/train_data.csv
-          preprocessing/processed_data/test_data.csv
-          preprocessing/preprocessing.log 
+          preprocessing/preprocessing.log
