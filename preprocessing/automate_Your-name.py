@@ -11,7 +11,7 @@ def preprocess_data(file_path):
     langkah-langkah di notebook Template_Eksperimen_MSML.ipynb.
 
     Args:
-        file_path (str): Path menuju file CSV input ('loan_approval_dataset.csv').
+        file_path (str): Path menuju file CSV input ('data.csv').
 
     Returns:
         tuple: 
@@ -32,12 +32,14 @@ def preprocess_data(file_path):
         print(f"❌ Error saat memuat dataset: {e}")
         return None, None
 
-    # 2. Hapus Kolom Tidak Diperlukan
-    if 'loan_id' in df.columns:
-        df.drop(columns=['loan_id'], inplace=True)
-        print("✅ Kolom 'loan_id' berhasil dihapus.")
+    # 2. Hapus Kolom Tidak Diperlukan (untuk employee attrition dataset)
+    columns_to_drop = ['EmployeeNumber', 'EmployeeCount', 'StandardHours', 'Over18']
+    existing_columns_to_drop = [col for col in columns_to_drop if col in df.columns]
+    if existing_columns_to_drop:
+        df.drop(columns=existing_columns_to_drop, inplace=True)
+        print(f"✅ Kolom tidak diperlukan berhasil dihapus: {existing_columns_to_drop}")
     else:
-        print("ℹ️ Kolom 'loan_id' tidak ditemukan, dilewati.")
+        print("ℹ️ Kolom yang akan dihapus tidak ditemukan, dilewati.")
 
     # 3. Hapus Duplikat
     before = len(df)
@@ -46,8 +48,9 @@ def preprocess_data(file_path):
     print(f"✅ Duplikat dihapus: {before - after} baris.")
 
     # 4. Encoding Kolom Kategorikal & Target
-    categorical_cols = ['education', 'self_employed']
-    target_col = 'loan_status'
+    categorical_cols = ['BusinessTravel', 'Department', 'EducationField', 'Gender', 
+                       'JobRole', 'MaritalStatus', 'OverTime']
+    target_col = 'Attrition'
 
     actual_categorical_cols = [col for col in categorical_cols if col in df.columns]
 
@@ -73,19 +76,19 @@ def preprocess_data(file_path):
 
     # 5. Standardisasi Kolom Numerik
     numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns
-    numerical_cols = [col for col in numerical_cols if col != target_col and not col.startswith(('Department_', 'Gender_'))]
+    numerical_cols = [col for col in numerical_cols if col != target_col]
 
-    if numerical_cols:
+    if len(numerical_cols) > 0:
         scaler = StandardScaler()
         df[numerical_cols] = scaler.fit_transform(df[numerical_cols])
-        print(f"✅ Standardisasi selesai untuk kolom: {numerical_cols}")
+        print(f"✅ Standardisasi selesai untuk kolom: {list(numerical_cols)}")
     else:
         print("ℹ️ Tidak ada kolom numerik untuk distandarisasi.")
 
     # 6. Simpan hasil preprocessing
-    output_dir = "preprocessing/loan_approval_preprocessing"
+    output_dir = "preprocessing/employee_attrition_preprocessing"
     os.makedirs(output_dir, exist_ok=True)
-    output_file_path = os.path.join(output_dir, "loan_approval_cleaned.csv")
+    output_file_path = os.path.join(output_dir, "employee_attrition_cleaned.csv")
     df.to_csv(output_file_path, index=False)
     print(f"✅ Data hasil preprocessing disimpan di: {output_file_path}")
 
@@ -93,7 +96,7 @@ def preprocess_data(file_path):
 
 # --- Contoh Penggunaan ---
 if __name__ == "__main__":
-    input_csv_path = "../data.csv"
+    input_csv_path = "data.csv"
     processed_df, mappings = preprocess_data(input_csv_path)
 
     if processed_df is not None:
@@ -101,3 +104,6 @@ if __name__ == "__main__":
         print(processed_df.head())
         print("\n--- Info Data Hasil Preprocessing ---")
         processed_df.info()
+        print("\n--- Mapping Encoding ---")
+        for col, mapping in mappings.items():
+            print(f"{col}: {mapping}")
