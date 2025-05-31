@@ -1,0 +1,46 @@
+name: ML Preprocessing Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'data.csv'
+      - 'preprocessing/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'data.csv'
+      - 'preprocessing/**'
+  workflow_dispatch:
+
+jobs:
+  preprocess:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas numpy scikit-learn
+        
+    - name: Run preprocessing pipeline
+      run: |
+        cd preprocessing
+        python automate_swift.py
+        
+    - name: Upload processed data
+      uses: actions/upload-artifact@v3
+      with:
+        name: processed-data
+        path: |
+          preprocessing/processed_data.csv
+          preprocessing/processed_data/train_data.csv
+          preprocessing/processed_data/test_data.csv
+          preprocessing/preprocessing.log 
