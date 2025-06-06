@@ -34,7 +34,7 @@ jobs:
     - name: Run preprocessing pipeline
       run: |
         cd preprocessing
-        python automate_ItSam.py
+        python automate_ItSam77.py
         
     - name: Upload processed data
       uses: actions/upload-artifact@v4
